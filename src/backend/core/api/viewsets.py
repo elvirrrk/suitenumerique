@@ -66,7 +66,7 @@ from wopi.services import access as access_service
 from wopi.tasks.conversion import convert_file
 from wopi.utils import compute_wopi_launch_url, get_wopi_client_config
 
-from .monitoring import monitoring_audit
+from ..monitoring_utils import log_audit_event
 from . import permissions, serializers, utils
 from .filters import (
     ItemFilter,
