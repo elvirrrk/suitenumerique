@@ -1363,11 +1363,21 @@ class Base(Configuration):
                 "format": "{asctime} {name} {levelname} {message}",
                 "style": "{",
             },
+            "raw": {
+                "format": "%(message)s",
+            },
         },
         "handlers": {
             "console": {
                 "class": "logging.StreamHandler",
                 "formatter": "simple",
+            },
+            "audit_file": {
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": LOGS_DIR / "audit.json",
+                "maxBytes": 10 * 1024 * 1024,
+                "backupCount": 5,
+                "formatter": "raw",
             },
         },
         # Override root logger to send it to console
@@ -1386,6 +1396,11 @@ class Base(Configuration):
                     environ_prefix=None,
                 ),
                 "propagate": True,
+            },
+            "monitoring_audit": {
+                "handlers": ["audit_file"],
+                "level": "INFO",
+                "propagate": False,
             },
         },
     }

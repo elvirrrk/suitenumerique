@@ -66,6 +66,7 @@ from wopi.services import access as access_service
 from wopi.tasks.conversion import convert_file
 from wopi.utils import compute_wopi_launch_url, get_wopi_client_config
 
+from .monitoring import monitoring_audit
 from . import permissions, serializers, utils
 from .filters import (
     ItemFilter,
@@ -1786,6 +1787,14 @@ class ItemViewSet(
 
         if item.upload_state == models.ItemUploadStateChoices.PENDING:
             raise drf.exceptions.PermissionDenied()
+        
+        log_audit_event(
+            action="file_download",
+            request=request,
+            resource_id=item.id,
+            file_name=getattr(item, "name", None),
+            file_size=getattr(item, "size", None),
+        )
 
         redirect_url = f"{settings.MEDIA_BASE_URL}{settings.MEDIA_URL}{quote(item.file_key)}"
         return drf.response.Response(
