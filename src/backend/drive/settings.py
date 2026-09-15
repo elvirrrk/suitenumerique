@@ -29,7 +29,7 @@ from sentry_sdk.integrations.django import DjangoIntegration
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.environ.get("DATA_DIR", os.path.join("/", "data"))
-LOGS_DIR = BASE_DIR / "logs"
+LOGS_DIR = os.path.join(BASE_DIR, "logs")
 KB = 1024
 MB = 1024 * KB
 GB = 1024 * MB
