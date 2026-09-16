@@ -35,7 +35,7 @@ MB = 1024 * KB
 GB = 1024 * MB
 
 #create LOGS_DIR at start if it doesnt exist
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
+os.makedirs(LOGS_DIR, exist_ok=True)
 
 def get_release():
     """
@@ -1376,8 +1376,8 @@ class Base(Configuration):
             },
             "audit_file": {
                 "class": "logging.handlers.RotatingFileHandler",
-                "filename": LOGS_DIR / "audit.json",
-                "maxBytes": 10 * 1024 * 1024,
+                "filename": os.path.join(LOGS_DIR, "audit.jsonl"),
+                "maxBytes":  10 * MB,
                 "backupCount": 5,
                 "formatter": "raw",
             },
