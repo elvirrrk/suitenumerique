@@ -1,5 +1,6 @@
 """Drive core API endpoints"""
 
+import logging
 from django.conf import settings
 from django.core.exceptions import ValidationError as DjangoValidationError
 
@@ -8,7 +9,7 @@ from rest_framework import exceptions as drf_exceptions
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.serializers import as_serializer_error
-
+from ..monitoring_utils import log_audit_event
 
 def exception_handler(exc, context):
     """Handle Django ValidationError as an accepted exception.
@@ -20,8 +21,33 @@ def exception_handler(exc, context):
     if isinstance(exc, DjangoValidationError):
         exc = drf_exceptions.ValidationError(as_serializer_error(exc))
 
-    return drf_exception_handler(exc, context)
+    response = drf_exception_handler(exc, context)
+    request = context.get("request")
+    view = context.get("view")
 
+    view_name = view.__class__.__name__ if view else "UnknownView"
+    resource_id = context.get("kwargs", {}).get("pk") or context.get("kwargs", {}).get("id")
+
+    if isinstance(exc, drf_exceptions.PermissionDenied):
+        request = context.get("request")
+        view = context.get("view")
+
+        view_name = view.__class__.__name__ if view else "UnknownView"
+        resource_id = context.get("kwargs", {}).get("pk") or context.get("kwargs", {}).get("id")
+
+        log_audit_event(
+            action="PERMISSION_DENIED",
+            user=getattr(request, "user", None),
+            resource_id=resource_id,
+            request=request,
+            criticality="HIGH",
+            view=view_name,
+            path=request.path if request else None,
+            method=request.method if request else None,
+            reason=str(exc.detail) if hasattr(exc, "detail") else str(exc),
+        )
+
+    return response
 
 # pylint: disable=unused-argument
 @api_view(["GET"])

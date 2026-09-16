@@ -1794,6 +1794,7 @@ class ItemViewSet(
             resource_id=item.id,
             file_name=getattr(item, "name", None),
             file_size=getattr(item, "size", None),
+            criticality="LOW"
         )
 
         redirect_url = f"{settings.MEDIA_BASE_URL}{settings.MEDIA_URL}{quote(item.file_key)}"
