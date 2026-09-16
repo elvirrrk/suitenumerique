@@ -1788,13 +1788,21 @@ class ItemViewSet(
         if item.upload_state == models.ItemUploadStateChoices.PENDING:
             raise drf.exceptions.PermissionDenied()
         
+        file_name = getattr(item, "name", None) or getattr(item, "file_name", None)
+        file_size = None
+        if hasattr(item, "size"):
+            try:
+                file_size = int(item.size)
+            except (TypeError, ValueError):
+                file_size = None
+
         log_audit_event(
             action="file_download",
             request=request,
-            resource_id=item.id,
-            file_name=getattr(item, "name", None),
-            file_size=getattr(item, "size", None),
-            criticality="LOW"
+            resource_id=str(item.id),  # Conversion explicite en string
+            criticality="LOW",
+            file_name=str(file_name) if file_name else None,
+            file_size=file_size,
         )
 
         redirect_url = f"{settings.MEDIA_BASE_URL}{settings.MEDIA_URL}{quote(item.file_key)}"
