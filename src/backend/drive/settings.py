@@ -1376,7 +1376,7 @@ class Base(Configuration):
             },
             "audit_file": {
                 "class": "logging.handlers.RotatingFileHandler",
-                "filename": os.path.join(LOGS_DIR, "audit.json1"),
+                "filename": os.path.join(LOGS_DIR, "audit.jsonl"),
                 "maxBytes":  10 * MB,
                 "backupCount": 5,
                 "formatter": "raw",
