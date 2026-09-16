@@ -14,8 +14,9 @@ export const useDownloadItem = () => {
 
   const modals = useModals();
   const { user } = useAuth();
+
   const handleDownloadItem = async (item?: Item) => {
-    if (!item?.url || !item?.title) {
+    if (!item?.id || !item?.title) {
       addToast(
         <ToasterItem type="error">
           <span className="material-icons">error</span>
@@ -26,7 +27,7 @@ export const useDownloadItem = () => {
     }
 
     const itemState = item?.upload_state;
-    const isCreator = item?.creator.id === user?.id;
+    const isCreator = item?.creator?.id === user?.id;
     const isFileTooLarge =
       itemState === ItemUploadState.FILE_TOO_LARGE_TO_ANALYZE;
     const isSuspicious = itemState === ItemUploadState.SUSPICIOUS;
@@ -53,7 +54,10 @@ export const useDownloadItem = () => {
         size: item.size,
         mimetype: item.mimetype,
       });
-      downloadFile(item.url!, item.title);
+
+      //force to use the endpoint in backend to track downloading
+      const djangoDownloadEndpoint = `/api/items/${item.id}/download/`;
+      downloadFile(djangoDownloadEndpoint, item.title);
     };
 
     if (title && description) {
@@ -64,13 +68,11 @@ export const useDownloadItem = () => {
       });
 
       if (decision === "yes") {
-        // Only call downloadFile if both url and title are defined
         triggerDownload();
       }
     } else {
       triggerDownload();
     }
   };
-
   return { handleDownloadItem };
 };
